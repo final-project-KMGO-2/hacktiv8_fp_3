@@ -8,31 +8,29 @@ import (
 
 type User struct {
 	ID       uint64 `json:"id"`
-	Username string `json:"username"`
+	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-	Age      int    `json:"age"`
+	Role     string `json:"role"`
 	BaseModel
 }
 
 type UserRegister struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	FullName string `json:"full_name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
-	Age      int    `json:"age" binding:"required,min=8"`
+	Role     string `json:"role" binding:"required"`
 }
 
 type UserUpdate struct {
 	ID       uint64 `json:"id"`
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
-	Age      int    `json:"age" binding:"required,min=8"`
+	FullName string `json:"full_name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 }
 
 type UserLogin struct {
 	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

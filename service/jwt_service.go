@@ -10,13 +10,15 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(userID string) string
+	GenerateToken(userID string, role string) string
 	ValidateToken(token string) (*jwt.Token, error)
 	GetUserIDByToken(token string) (uint64, error)
+	GetRoleByToken(token string) (string, error)
 }
 
 type jwtCustomClaim struct {
 	UserID string `json:"user_id"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -40,9 +42,10 @@ func getSecretKey() string {
 	return secretKey
 }
 
-func (j *jwtService) GenerateToken(UserID string) string {
+func (j *jwtService) GenerateToken(UserID string, Role string) string {
 	claims := &jwtCustomClaim{
 		UserID,
+		Role,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
 			Issuer:    j.issuer,
@@ -72,9 +75,17 @@ func (j *jwtService) GetUserIDByToken(token string) (uint64, error) {
 		return 0, err
 	}
 	claims := t_Token.Claims.(jwt.MapClaims)
-	fmt.Println("claim token -> ", claims)
 	id := fmt.Sprintf("%v", claims["user_id"])
-	fmt.Println("id token -> ", id)
 	idUint, _ := strconv.ParseUint(id, 10, 64)
 	return uint64(idUint), nil
+}
+
+func (j *jwtService) GetRoleByToken(token string) (string, error) {
+	t_Token, err := j.ValidateToken(token)
+	if err != nil {
+		return "", err
+	}
+	claims := t_Token.Claims.(jwt.MapClaims)
+	role := fmt.Sprintf("%v", claims["role"])
+	return role, nil
 }

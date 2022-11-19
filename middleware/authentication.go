@@ -12,7 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func Authenticate(jwtService service.JWTService) gin.HandlerFunc {
+func Authenticate(jwtService service.JWTService, role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -35,6 +35,14 @@ func Authenticate(jwtService service.JWTService) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusForbidden, response)
 			return
 		}
+
+		userRole, err := jwtService.GetRoleByToken(string(authHeader))
+		if err != nil || (userRole != "admin" && userRole != role) {
+			response := common.BuildErrorResponse("Access denied", "You dont have access", nil)
+			c.AbortWithStatusJSON(http.StatusForbidden, response)
+			return
+		}
+
 		c.Set("token", authHeader)
 		c.Next()
 	}

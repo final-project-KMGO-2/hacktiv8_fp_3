@@ -48,13 +48,6 @@ func (c *userController) Register(ctx *gin.Context) {
 		return
 	}
 
-	isDuplicateUsername, _ := c.authService.CheckUsernameDuplicate(ctx.Request.Context(), user.Username)
-	if isDuplicateUsername {
-		response := common.BuildErrorResponse("Failed to process request", "Duplicate Username", common.EmptyObj{})
-		ctx.JSON(http.StatusConflict, response)
-		return
-	}
-
 	createdUser, err := c.userService.CreateUser(ctx.Request.Context(), user)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to process request", err.Error(), common.EmptyObj{})
@@ -62,7 +55,7 @@ func (c *userController) Register(ctx *gin.Context) {
 		return
 	}
 	userId := strconv.FormatUint(uint64(createdUser.ID), 10)
-	token := c.jwtService.GenerateToken(userId)
+	token := c.jwtService.GenerateToken(userId, createdUser.Role)
 	response := common.BuildResponse(true, "OK", token)
 	ctx.JSON(http.StatusCreated, response)
 }
@@ -89,7 +82,7 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 	userId := strconv.FormatUint(uint64(user.ID), 10)
-	generatedToken := c.jwtService.GenerateToken(userId)
+	generatedToken := c.jwtService.GenerateToken(userId, user.Role)
 	response := common.BuildResponse(true, "OK", generatedToken)
 	ctx.JSON(http.StatusOK, response)
 }
