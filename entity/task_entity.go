@@ -4,11 +4,30 @@ import "time"
 
 type Task struct {
 	Id          int       `gorm:"primaryKey" json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	Title       string    `json:"title" binding:"required"`
+	Description string    `json:"description" binding:"required"`
 	Deadline    time.Time `json:"deadline"`
-	Status      bool      `json:"status"`
-	CategoryID  string    `json:"category_id"`
-	UserID      int64     `json:"user_id"`
+	Status      bool      `json:"status" binding:"boolean"`
+	CategoryID  int       `json:"category_id"`
+	UserID      int       `json:"user_id"`
 	BaseModel
+}
+
+type TaskCreate struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	CategoryID  string `json:"category_id"`
+}
+
+type TaskUpdate struct { // memakai task id di params
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+}
+
+type TaskStatusModifier struct {
+	Status bool `json:"status" binding:"boolean"`
+}
+
+type TaskCategoryModifier struct {
+	CategoryID int `json:"category_id"`
 }
