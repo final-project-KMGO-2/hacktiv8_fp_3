@@ -24,7 +24,7 @@ type taskService struct {
 	userRepo repository.UserRepository
 }
 
-func NewTaskRepository(tr repository.TaskRepository, ur repository.UserRepository) TaskService {
+func NewTaskService(tr repository.TaskRepository, ur repository.UserRepository) TaskService {
 	return taskService{
 		taskRepo: tr,
 		userRepo: ur,

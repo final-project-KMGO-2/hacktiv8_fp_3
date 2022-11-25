@@ -23,7 +23,7 @@ type taskController struct {
 	jwtService  service.JWTService
 }
 
-func NewTaskService(ts service.TaskService, jt service.JWTService) TaskController {
+func NewTaskController(ts service.TaskService, jt service.JWTService) TaskController {
 	return taskController{taskService: ts, jwtService: jt}
 }
 
