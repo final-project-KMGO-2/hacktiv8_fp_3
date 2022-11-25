@@ -10,7 +10,7 @@ import (
 
 type CategoryService interface {
 	CreateCategory(ctx context.Context, categoryCreate entity.CategoryCreate) (entity.Category, error)
-	GetCategory(ctx context.Context, userID uint64) ([]entity.Category, error)
+	GetCategory(ctx context.Context) ([]entity.Category, error)
 	PatchCategory(ctx context.Context, categoryID uint64, CategoryPatch entity.CategoryPatch) (entity.Category, error)
 	DeleteCategory(ctx context.Context, categoryID uint64) error
 }
@@ -41,8 +41,8 @@ func (s *categoryService) CreateCategory(ctx context.Context, categoryCreate ent
 }
 
 // GetCategory implements CategoryService
-func (s *categoryService) GetCategory(ctx context.Context, userID uint64) ([]entity.Category, error) {
-	res, err := s.CategoryRepository.GetCategory(ctx, userID)
+func (s *categoryService) GetCategory(ctx context.Context) ([]entity.Category, error) {
+	res, err := s.CategoryRepository.GetCategory(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ type User struct {
 	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-	Role     string `json:"role"`
+	Role     string `json:"-"`
 	BaseModel
 }
 

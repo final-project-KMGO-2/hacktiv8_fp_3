@@ -12,7 +12,10 @@ require (
 	gorm.io/gorm v1.23.9
 )
 
-require github.com/getsentry/sentry-go v0.15.0 // indirect
+require (
+	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+)
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -40,7 +43,6 @@ require (
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
-	golang.org/x/tools v0.3.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

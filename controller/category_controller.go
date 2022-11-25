@@ -5,6 +5,7 @@ import (
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,10 +39,6 @@ func (ca *categoryController) CreateCategory(ctx *gin.Context) {
 		return
 	}
 
-	token := ctx.MustGet("token").(string)
-	userID, err := ca.jwtService.GetUserIDByToken(token)
-	categoryCreate.UserID = uint64(userID)
-
 	result, err := ca.categoryService.CreateCategory(ctx.Request.Context(), categoryCreate)
 	if err != nil {
 		res := common.BuildErrorResponse("Failed to add category", err.Error(), nil)
@@ -54,10 +51,8 @@ func (ca *categoryController) CreateCategory(ctx *gin.Context) {
 
 // GetCategory implements CategoryController
 func (ca *categoryController) GetCategory(ctx *gin.Context) {
-	token := ctx.MustGet("token").(string)
-	userID, _ := ca.jwtService.GetUserIDByToken(token)
 
-	result, err := ca.categoryService.GetCategory(ctx.Request.Context(), userID)
+	result, err := ca.categoryService.GetCategory(ctx.Request.Context())
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to get category", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -70,16 +65,13 @@ func (ca *categoryController) GetCategory(ctx *gin.Context) {
 // PatchCategory implements CategoryController
 func (ca *categoryController) PatchCategory(ctx *gin.Context) {
 	var categoryPatch entity.CategoryPatch
+	id := ctx.Param("id")
+	categoryPatch.ID, _ = strconv.ParseUint(id, 10, 64)
 	if err := ctx.ShouldBind(&categoryPatch); err != nil {
 		response := common.BuildErrorResponse("Failed to bind photo request", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	token := ctx.MustGet("token").(string)
-	userID, _ := ca.jwtService.GetUserIDByToken(token)
-	categoryPatch.UserID = uint64(userID)
-	categoryPatch.ID = ctx.MustGet("categoryID").(uint64)
 
 	result, err := ca.categoryService.PatchCategory(ctx.Request.Context(), categoryPatch.ID, categoryPatch)
 	if err != nil {
@@ -93,7 +85,8 @@ func (ca *categoryController) PatchCategory(ctx *gin.Context) {
 
 // DeleteCategory implements CategoryController
 func (ca *categoryController) DeleteCategory(ctx *gin.Context) {
-	categoryID := ctx.MustGet("categoryID").(uint64)
+	id := ctx.Param("id")
+	categoryID, _ := strconv.ParseUint(id, 10, 64)
 	err := ca.categoryService.DeleteCategory(ctx.Request.Context(), categoryID)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to delete comment", err.Error(), nil)

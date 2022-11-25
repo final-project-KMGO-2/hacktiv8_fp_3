@@ -33,8 +33,9 @@ func NewUserController(us service.UserService, as service.AuthService, js servic
 
 func (c *userController) Register(ctx *gin.Context) {
 	var user entity.UserRegister
-	errBind := ctx.ShouldBind(&user)
 
+	user.Role = "member"
+	errBind := ctx.ShouldBind(&user)
 	if errBind != nil {
 		response := common.BuildErrorResponse("Failed to process request", errBind.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -54,9 +55,7 @@ func (c *userController) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusConflict, response)
 		return
 	}
-	userId := strconv.FormatUint(uint64(createdUser.ID), 10)
-	token := c.jwtService.GenerateToken(userId, createdUser.Role)
-	response := common.BuildResponse(true, "OK", token)
+	response := common.BuildResponse(true, "OK", createdUser)
 	ctx.JSON(http.StatusCreated, response)
 }
 

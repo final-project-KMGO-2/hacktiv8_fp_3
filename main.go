@@ -25,20 +25,23 @@ func main() {
 		log.Println(err)
 	}
 	var (
-		db             *gorm.DB                  = config.SetupDatabaseConnection()
-		userRepository repository.UserRepository = repository.NewUserRepository(db)
+		db                 *gorm.DB                      = config.SetupDatabaseConnection()
+		userRepository     repository.UserRepository     = repository.NewUserRepository(db)
+		categoryRepository repository.CategoryRepository = repository.NewCategoryRepository(db)
 		// photoRepository   repository.PhotoRepository   = repository.NewPhotoRepository(db)
 		// socmedRepository  repository.SocmedRepository  = repository.NewSocmedRepository(db)
 		// commentRepository repository.CommentRepository = repository.NewCommentRepository(db)
 
-		jwtService  service.JWTService  = service.NewJWTService()
-		userService service.UserService = service.NewUserService(userRepository)
-		authService service.AuthService = service.NewAuthService(userRepository)
+		jwtService      service.JWTService      = service.NewJWTService()
+		userService     service.UserService     = service.NewUserService(userRepository)
+		authService     service.AuthService     = service.NewAuthService(userRepository)
+		categoryService service.CategoryService = service.NewCategoryService(categoryRepository)
 		// photoService   service.PhotoService   = service.NewPhotoService(photoRepository)
 		// socmedService  service.SocmedService  = service.NewSocmedService(socmedRepository, userRepository)
 		// commentService service.CommentService = service.NewCommentService(commentRepository)
 
-		authController controller.UserController = controller.NewUserController(userService, authService, jwtService)
+		authController     controller.UserController     = controller.NewUserController(userService, authService, jwtService)
+		categoryController controller.CategoryController = controller.NewCategoryController(categoryService, jwtService)
 		// photoController   controller.PhotoController   = controller.NewPhotoController(photoService, jwtService)
 		// socmedController  controller.SocmedController  = controller.NewSocmedController(userService, socmedService, jwtService)
 		// commentController controller.CommentController = controller.NewCommentController(commentService, jwtService)
@@ -49,6 +52,7 @@ func main() {
 	server := gin.Default()
 
 	routes.UserRoutes(server, authController, jwtService)
+	routes.CategoryRoutes(server, categoryController, jwtService)
 	// routes.SocMedRoutes(server, socmedController, socmedService, jwtService)
 	// routes.PhotoRoutes(server, photoController, photoService, jwtService)
 	// routes.CommentRoutes(server, commentController, commentService, jwtService)

@@ -1,19 +1,16 @@
 package entity
 
 type Category struct {
-	ID     uint64 `gorm:"primaryKey" json:"id"`
-	Type   string `json:"type"`
-	UserID uint64 `json:"user_id"`
+	ID   uint64 `gorm:"primaryKey" json:"id"`
+	Type string `json:"type"`
 	BaseModel
 }
 
 type CategoryCreate struct {
-	UserID uint64 `json:"user_id"`
-	Type   string `json:"type"`
+	Type string `json:"type" binding:"required"`
 }
 
 type CategoryPatch struct {
-	ID     uint64 `gorm:"primaryKey" json:"id"`
-	UserID uint64 `json:"user_id"`
-	Type   string `json:"type"`
+	ID   uint64 `gorm:"primaryKey" json:"id"`
+	Type string `json:"type" binding:"required"`
 }

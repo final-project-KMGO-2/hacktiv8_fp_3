@@ -9,7 +9,7 @@ import (
 
 type CategoryRepository interface {
 	CreateCategory(ctx context.Context, category entity.Category) (entity.Category, error)
-	GetCategory(ctx context.Context, userID uint64) ([]entity.Category, error)
+	GetCategory(ctx context.Context) ([]entity.Category, error)
 	PatchCategory(ctx context.Context, category entity.Category) (entity.Category, error)
 	DeleteCategory(ctx context.Context, categoryID uint64) error
 }
@@ -34,18 +34,22 @@ func (db *categoryConnection) CreateCategory(ctx context.Context, category entit
 }
 
 // GetCategory implements CategoryRepository
-func (db *categoryConnection) GetCategory(ctx context.Context, userID uint64) ([]entity.Category, error) {
+func (db *categoryConnection) GetCategory(ctx context.Context) ([]entity.Category, error) {
 	var category []entity.Category
-	tx := db.connection.Preload("User").Find(&category)
+	tx := db.connection.Find(&category)
 	if tx.Error != nil {
-		return []entity.Category{}, tx.Error
+		return nil, tx.Error
 	}
 	return category, nil
 }
 
 // PatchCategory implements CategoryRepository
 func (db *categoryConnection) PatchCategory(ctx context.Context, category entity.Category) (entity.Category, error) {
-	panic("unimplemented")
+	tx := db.connection.Save(&category)
+	if tx.Error != nil {
+		return entity.Category{}, tx.Error
+	}
+	return category, nil
 }
 
 // DeleteCategory implements CategoryRepository

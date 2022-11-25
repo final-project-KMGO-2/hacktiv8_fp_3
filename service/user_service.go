@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
 
@@ -32,8 +31,6 @@ func (s *userService) CreateUser(ctx context.Context, user entity.UserRegister) 
 	if err != nil {
 		return createdUser, err
 	}
-
-	fmt.Printf("%+v\n", createdUser)
 
 	res, err := s.userRepository.CreateUser(ctx, createdUser)
 	if err != nil {

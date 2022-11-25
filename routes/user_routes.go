@@ -13,7 +13,7 @@ func UserRoutes(router *gin.Engine, userController controller.UserController, jw
 	{
 		userRoutes.POST("/register", userController.Register)
 		userRoutes.POST("/login", userController.Login)
-		userRoutes.PUT("", middleware.Authenticate(jwtService, "member"), userController.UpdateUser)
-		userRoutes.DELETE("", middleware.Authenticate(jwtService, "member"), userController.DeleteUser)
+		userRoutes.PUT("/update-account", middleware.Authenticate(jwtService, "member"), userController.UpdateUser)
+		userRoutes.DELETE("/delete-account", middleware.Authenticate(jwtService, "member"), userController.DeleteUser)
 	}
 }
