@@ -8,13 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TaskRoutes(route *gin.Engine, taskController controller.TaskController, jwtSvc service.JWTService) {
-	taskRoute := route.Group("/task")
+func TaskRoutes(route *gin.Engine, taskController controller.TaskController, jwtSvc service.JWTService, taskService service.TaskService) {
+	taskRoute := route.Group("/tasks", middleware.Authenticate(jwtSvc, "member"))
 	{
-		taskRoute.GET("", middleware.Authenticate(jwtSvc, "member"), taskController.GetAllTask)
-		taskRoute.POST("", middleware.Authenticate(jwtSvc, "member"), taskController.AddNewTask)
-		taskRoute.PATCH("/update-status/:taskId", middleware.Authenticate(jwtSvc, "member"), taskController.UpdateTaskStatus)
-		taskRoute.PATCH("/update-category/:taskId", middleware.Authenticate(jwtSvc, "member"), taskController.UpdateTaskCategory)
-		taskRoute.DELETE("/:taskId", middleware.Authenticate(jwtSvc, "member"), taskController.DeleteTaskById)
+		taskRoute.GET("", taskController.GetAllTask)
+		taskRoute.POST("", taskController.AddNewTask)
+		taskRoute.PUT("/:taskId", middleware.TaskAuthorization(jwtSvc, taskService), taskController.UpdateTask)
+		taskRoute.PATCH("/update-status/:taskId", middleware.TaskAuthorization(jwtSvc, taskService), taskController.UpdateTaskStatus)
+		taskRoute.PATCH("/update-category/:taskId", middleware.TaskAuthorization(jwtSvc, taskService), taskController.UpdateTaskCategory)
+		taskRoute.DELETE("/:taskId", middleware.TaskAuthorization(jwtSvc, taskService), taskController.DeleteTaskById)
 	}
 }

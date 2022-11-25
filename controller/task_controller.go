@@ -5,6 +5,7 @@ import (
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,14 +56,7 @@ func (tc taskController) AddNewTask(ctx *gin.Context) {
 }
 
 func (tc taskController) GetAllTask(ctx *gin.Context) {
-	token := ctx.MustGet("token").(string)
-	userId, err := tc.jwtService.GetUserIDByToken(token)
-	if err != nil {
-		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
-		ctx.JSON(http.StatusUnauthorized, response)
-		return
-	}
-	data, err := tc.taskService.GetTasks(ctx.Request.Context(), int(userId))
+	data, err := tc.taskService.GetTasks(ctx.Request.Context())
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, response)
@@ -73,6 +67,7 @@ func (tc taskController) GetAllTask(ctx *gin.Context) {
 }
 
 func (tc taskController) UpdateTask(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("taskId"), 10, 64)
 	var taskUpdate entity.TaskUpdate
 	err := ctx.ShouldBind(&taskUpdate)
 	if err != nil {
@@ -81,15 +76,7 @@ func (tc taskController) UpdateTask(ctx *gin.Context) {
 		return
 	}
 
-	token := ctx.MustGet("token").(string)
-	userId, err := tc.jwtService.GetUserIDByToken(token)
-	if err != nil {
-		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
-		ctx.JSON(http.StatusUnauthorized, response)
-		return
-	}
-
-	data, err := tc.taskService.UpdateTask(ctx, taskUpdate, int(userId))
+	data, err := tc.taskService.UpdateTask(ctx, taskUpdate, int(id))
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -100,6 +87,7 @@ func (tc taskController) UpdateTask(ctx *gin.Context) {
 }
 
 func (tc taskController) UpdateTaskStatus(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("taskId"), 10, 64)
 	var taskStatusReq entity.TaskStatusModifier
 	err := ctx.ShouldBind(&taskStatusReq)
 	if err != nil {
@@ -107,16 +95,8 @@ func (tc taskController) UpdateTaskStatus(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	token := ctx.MustGet("token").(string)
 
-	userId, err := tc.jwtService.GetUserIDByToken(token)
-	if err != nil {
-		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
-		ctx.JSON(http.StatusUnauthorized, response)
-		return
-	}
-
-	data, err := tc.taskService.ChangeTaskStatus(ctx, taskStatusReq, int(userId))
+	data, err := tc.taskService.ChangeTaskStatus(ctx, taskStatusReq, int(id))
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -127,6 +107,7 @@ func (tc taskController) UpdateTaskStatus(ctx *gin.Context) {
 }
 
 func (tc taskController) UpdateTaskCategory(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("taskId"), 10, 64)
 	var taskCategoryReq entity.TaskCategoryModifier
 	err := ctx.ShouldBind(&taskCategoryReq)
 	if err != nil {
@@ -134,16 +115,8 @@ func (tc taskController) UpdateTaskCategory(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	token := ctx.MustGet("token").(string)
 
-	userId, err := tc.jwtService.GetUserIDByToken(token)
-	if err != nil {
-		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
-		ctx.JSON(http.StatusUnauthorized, response)
-		return
-	}
-
-	data, err := tc.taskService.ChangeTaskCategory(ctx, taskCategoryReq, int(userId))
+	data, err := tc.taskService.ChangeTaskCategory(ctx, taskCategoryReq, int(id))
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -154,8 +127,8 @@ func (tc taskController) UpdateTaskCategory(ctx *gin.Context) {
 }
 
 func (tc taskController) DeleteTaskById(ctx *gin.Context) {
-	id := ctx.MustGet("taskId").(int)
-	err := tc.taskService.RemoveTask(ctx.Request.Context(), id)
+	id, _ := strconv.ParseInt(ctx.Param("taskId"), 10, 64)
+	err := tc.taskService.RemoveTask(ctx.Request.Context(), int(id))
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)

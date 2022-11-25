@@ -10,7 +10,8 @@ import (
 
 type TaskRepository interface {
 	CreateTask(ctx context.Context, task entity.Task) (entity.Task, error)
-	SelectTask(ctx context.Context, userId int) ([]entity.TaskDetail, error)
+	SelectTask(ctx context.Context) ([]entity.Task, error)
+	GetTaskByID(ctx context.Context, id int) (entity.Task, error)
 	UpdateTask(ctx context.Context, id int, obj map[string]interface{}) (entity.Task, error)
 	DeleteTask(ctx context.Context, id int) error
 }
@@ -35,9 +36,19 @@ func (tc taskConnection) CreateTask(ctx context.Context, task entity.Task) (enti
 
 	return task, nil
 }
-func (tc taskConnection) SelectTask(ctx context.Context, userId int) ([]entity.TaskDetail, error) {
-	var tasks []entity.TaskDetail
-	tx := tc.connection.Where("userId = ?", userId).First(&tasks)
+
+func (tc taskConnection) GetTaskByID(ctx context.Context, id int) (entity.Task, error) {
+	var task entity.Task
+	tx := tc.connection.Where(("id = ?"), id).Take(&task)
+	if tx.Error != nil {
+		return entity.Task{}, tx.Error
+	}
+	return task, nil
+}
+
+func (tc taskConnection) SelectTask(ctx context.Context) ([]entity.Task, error) {
+	var tasks []entity.Task
+	tx := tc.connection.Preload("User").Find(&tasks)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -57,7 +68,6 @@ func (tc taskConnection) UpdateTask(ctx context.Context, id int, obj map[string]
 	}
 	return task, nil
 }
-
 
 func (tc taskConnection) DeleteTask(ctx context.Context, id int) error {
 	tx := tc.connection.Delete(&entity.Task{}, id)

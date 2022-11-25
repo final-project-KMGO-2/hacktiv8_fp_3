@@ -10,6 +10,7 @@ import (
 type CategoryRepository interface {
 	CreateCategory(ctx context.Context, category entity.Category) (entity.Category, error)
 	GetCategory(ctx context.Context) ([]entity.Category, error)
+	GetCategoryByID(ctx context.Context, id int) (entity.Category, error)
 	PatchCategory(ctx context.Context, category entity.Category) (entity.Category, error)
 	DeleteCategory(ctx context.Context, categoryID uint64) error
 }
@@ -39,6 +40,15 @@ func (db *categoryConnection) GetCategory(ctx context.Context) ([]entity.Categor
 	tx := db.connection.Find(&category)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+	return category, nil
+}
+
+func (db *categoryConnection) GetCategoryByID(ctx context.Context, id int) (entity.Category, error) {
+	var category entity.Category
+	tx := db.connection.Where(("id = ?"), id).Take(&category)
+	if tx.Error != nil {
+		return entity.Category{}, tx.Error
 	}
 	return category, nil
 }
