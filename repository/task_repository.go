@@ -8,11 +8,10 @@ import (
 )
 
 type TaskRepository interface {
-	CreateTask(ctx context.Context, task entity.Task)
-	SelectTask(ctx context.Context)
-	PatchTaskStatus(ctx context.Context, newStatus string)
-	PatchTaskCategory(ctx context.Context, newCategory string)
-	DeleteTask(ctx context.Context, id int)
+	CreateTask(ctx context.Context, task entity.Task) (entity.Task, error)
+	SelectTask(ctx context.Context) ([]entity.TaskDetail, error)
+	UpdateTask(ctx context.Context, id int, obj map[string]interface{}) (entity.Task, error)
+	DeleteTask(ctx context.Context, id int) error
 }
 
 type taskConnection struct {
@@ -33,20 +32,29 @@ func (tc taskConnection) CreateTask(ctx context.Context, task entity.Task) (enti
 
 	return task, nil
 }
-func (tc taskConnection) SelectTask(ctx context.Context) ([]entity.Task, error) {
-	var tasks []entity.Task
+func (tc taskConnection) SelectTask(ctx context.Context) ([]entity.TaskDetail, error) {
+	var tasks []entity.TaskDetail
 	tx := tc.connection.Find(&tasks)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 	return tasks, nil
 }
-func (tc taskConnection) PatchTaskStatus(ctx context.Context, newStatus string) {
-	
-}
-func (tc taskConnection) PatchTaskCategory(ctx context.Context, newCategory string) {
 
+func (tc taskConnection) UpdateTask(ctx context.Context, id int, obj map[string]interface{}) (entity.Task, error) {
+	var task entity.Task
+	tx := tc.connection.First(&task, id)
+	if tx.Error != nil {
+		return entity.Task{}, tx.Error
+	}
+	tx = tc.connection.Model(&task).Updates(obj)
+	if tx.Error != nil {
+		return entity.Task{}, tx.Error
+	}
+	return task, nil
 }
+
+
 func (tc taskConnection) DeleteTask(ctx context.Context, id int) error {
 	tx := tc.connection.Delete(&entity.Task{}, id)
 	if tx.Error != nil {
