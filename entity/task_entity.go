@@ -1,12 +1,9 @@
 package entity
 
-import "time"
-
 type Task struct {
 	Id          int       `gorm:"primaryKey" json:"id"`
 	Title       string    `json:"title" binding:"required"`
 	Description string    `json:"description" binding:"required"`
-	Deadline    time.Time `json:"deadline"`
 	Status      bool      `json:"status" binding:"boolean"`
 	CategoryID  int       `json:"category_id"`
 	UserID      int       `json:"user_id"`
@@ -17,7 +14,6 @@ type TaskDetail struct {
 	Id          int       `gorm:"primaryKey" json:"id"`
 	Title       string    `json:"title" binding:"required"`
 	Description string    `json:"description" binding:"required"`
-	Deadline    time.Time `json:"deadline"`
 	Status      bool      `json:"status" binding:"boolean"`
 	CategoryID  int       `json:"category_id"`
 	UserID      int       `json:"user_id"`

@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
-	"time"
 
 	"github.com/mashingan/smapping"
 )
 
 type TaskService interface {
 	CreateNewTask(ctx context.Context, newTask entity.TaskCreate) (entity.Task, error)
-	GetTasks(ctx context.Context) ([]entity.TaskDetail, error)
+	GetTasks(ctx context.Context, userId int) ([]entity.TaskDetail, error)
 	UpdateTask(ctx context.Context, newTaskUpdate entity.TaskUpdate, id int) (entity.Task, error)
 	ChangeTaskStatus(ctx context.Context, newStatus entity.TaskStatusModifier, id int) (entity.Task, error)
 	ChangeTaskCategory(ctx context.Context, newCategory entity.TaskCategoryModifier, id int) (entity.Task, error)
@@ -34,8 +33,7 @@ func NewTaskService(tr repository.TaskRepository, ur repository.UserRepository) 
 func (ts taskService) CreateNewTask(ctx context.Context, newTask entity.TaskCreate) (entity.Task, error) {
 	task := entity.Task{}
 	err := smapping.FillStruct(&task, smapping.MapFields(&newTask))
-	task.CreatedAt = time.Now()
-	task.UpdatedAt = time.Now()
+
 	if err != nil {
 		return entity.Task{}, err
 	}
@@ -47,8 +45,8 @@ func (ts taskService) CreateNewTask(ctx context.Context, newTask entity.TaskCrea
 
 	return res, nil
 }
-func (ts taskService) GetTasks(ctx context.Context) ([]entity.TaskDetail, error) {
-	data, err := ts.taskRepo.SelectTask(ctx)
+func (ts taskService) GetTasks(ctx context.Context, userId int) ([]entity.TaskDetail, error) {
+	data, err := ts.taskRepo.SelectTask(ctx, userId)
 	if err != nil {
 		return nil, err
 	}

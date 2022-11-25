@@ -55,7 +55,14 @@ func (tc taskController) AddNewTask(ctx *gin.Context) {
 }
 
 func (tc taskController) GetAllTask(ctx *gin.Context) {
-	data, err := tc.taskService.GetTasks(ctx.Request.Context())
+	token := ctx.MustGet("token").(string)
+	userId, err := tc.jwtService.GetUserIDByToken(token)
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusUnauthorized, response)
+		return
+	}
+	data, err := tc.taskService.GetTasks(ctx.Request.Context(), int(userId))
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, response)
