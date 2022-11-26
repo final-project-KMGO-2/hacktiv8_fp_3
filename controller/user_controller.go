@@ -34,7 +34,10 @@ func NewUserController(us service.UserService, as service.AuthService, js servic
 func (c *userController) Register(ctx *gin.Context) {
 	var user entity.UserRegister
 
-	user.Role = "member"
+	if user.Role == "" {
+		user.Role = "member"
+	}
+
 	errBind := ctx.ShouldBind(&user)
 	if errBind != nil {
 		response := common.BuildErrorResponse("Failed to process request", errBind.Error(), common.EmptyObj{})
