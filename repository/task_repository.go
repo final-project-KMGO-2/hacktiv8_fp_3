@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"hacktiv8_fp_2/entity"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -27,8 +26,6 @@ func NewTaskRepository(db *gorm.DB) TaskRepository {
 }
 
 func (tc taskConnection) CreateTask(ctx context.Context, task entity.Task) (entity.Task, error) {
-	*task.CreatedAt = time.Now()
-	*task.UpdatedAt = time.Now()
 	tx := tc.connection.Create(&task)
 	if tx.Error != nil {
 		return entity.Task{}, tx.Error
@@ -61,7 +58,6 @@ func (tc taskConnection) UpdateTask(ctx context.Context, id int, obj map[string]
 	if tx.Error != nil {
 		return entity.Task{}, tx.Error
 	}
-	*task.UpdatedAt = time.Now()
 	tx = tc.connection.Model(&task).Updates(obj)
 	if tx.Error != nil {
 		return entity.Task{}, tx.Error
